@@ -9,6 +9,8 @@ import {
   collectClaimLeaves,
   collectSdClaimPaths,
   filterClaimTree,
+  mdocClaimPathFormat,
+  sdJwtClaimPathFormat,
 } from "../../utils/sdClaimsTree";
 
 jest.mock("../../modals/ModalWrapper", () => ({
@@ -163,6 +165,35 @@ describe("SDClaimsSelectionModal", () => {
       (nodes || []).filter((n) => n.claimType === "sdClaim").map((n) => n.path)
     );
     mockFilterClaimTree.mockImplementation((nodes) => nodes || []);
+  });
+
+  describe("claim path format", () => {
+    it("builds the claim tree with the SD-JWT path format for SD-JWT credentials", () => {
+      renderModal();
+
+      expect(mockBuildClaimTree).toHaveBeenCalledWith(
+        mockCredential.claims,
+        mockCredential.sdClaims,
+        sdJwtClaimPathFormat
+      );
+    });
+
+    it("builds the claim tree with the mdoc path format for mso_mdoc credentials", () => {
+      const mdocCredential: WalletCredential = {
+        ...mockCredential,
+        format: "mso_mdoc",
+        claims: [],
+        sdClaims: ["$['org.iso.18013.5.1']['family_name']"],
+      };
+
+      renderModal({ seletedSDJWT: mdocCredential });
+
+      expect(mockBuildClaimTree).toHaveBeenCalledWith(
+        [],
+        mdocCredential.sdClaims,
+        mdocClaimPathFormat
+      );
+    });
   });
 
   describe("rendering", () => {

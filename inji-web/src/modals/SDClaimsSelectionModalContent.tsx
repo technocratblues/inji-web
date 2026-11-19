@@ -17,7 +17,10 @@ import {
     collectClaimLeaves,
     collectSdClaimPaths,
     ClaimLeaf,
+    mdocClaimPathFormat,
+    sdJwtClaimPathFormat,
 } from "../utils/sdClaimsTree";
+import { isMdocCredential } from "../components/Ovp/Dcql/credentialCardUtils";
 
 export interface SDClaimsSelectionModalContentProps {
     seletedSDJWT: WalletCredential | null;
@@ -42,9 +45,13 @@ export function SDClaimsSelectionModalContent({
 
     const claims = seletedSDJWT?.claims ?? [];
     const sdClaims = seletedSDJWT?.sdClaims ?? [];
+    const claimPathFormat =
+        seletedSDJWT && isMdocCredential(seletedSDJWT)
+            ? mdocClaimPathFormat
+            : sdJwtClaimPathFormat;
     const claimTree = useMemo(
-        () => buildClaimTree(claims, sdClaims),
-        [claims, sdClaims]
+        () => buildClaimTree(claims, sdClaims, claimPathFormat),
+        [claims, sdClaims, claimPathFormat]
     );
     const allSdClaimPaths = useMemo(
         () => collectSdClaimPaths(claimTree),

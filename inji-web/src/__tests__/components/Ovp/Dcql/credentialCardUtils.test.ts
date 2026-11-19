@@ -1,7 +1,10 @@
 import { WalletCredential } from "../../../../types/data";
 import {
+    buildMdocDefaultSdClaims,
     getCredentialActionVariant,
+    isMdocCredential,
     isSdJwtCredential,
+    isSelectivelyDisclosableCredential,
 } from "../../../../components/Ovp/Dcql/credentialCardUtils";
 
 const makeCredential = (format: string): WalletCredential => ({
@@ -38,5 +41,38 @@ describe("credentialCardUtils", () => {
         expect(getCredentialActionVariant(makeCredential("ldp_vc"))).toBe(
             "viewCard"
         );
+    });
+
+    test("isMdocCredential returns true only for mso_mdoc", () => {
+        expect(isMdocCredential(makeCredential("mso_mdoc"))).toBe(true);
+        expect(isMdocCredential(makeCredential("dc+sd-jwt"))).toBe(false);
+        expect(isMdocCredential({ format: undefined })).toBe(false);
+    });
+
+    test("isSelectivelyDisclosableCredential covers SD-JWT and mdoc", () => {
+        expect(isSelectivelyDisclosableCredential(makeCredential("dc+sd-jwt"))).toBe(true);
+        expect(isSelectivelyDisclosableCredential(makeCredential("vc+sd-jwt"))).toBe(true);
+        expect(isSelectivelyDisclosableCredential(makeCredential("mso_mdoc"))).toBe(true);
+        expect(isSelectivelyDisclosableCredential(makeCredential("ldp_vc"))).toBe(false);
+    });
+
+    test("returns shareableFields for mdoc credentials", () => {
+        expect(getCredentialActionVariant(makeCredential("mso_mdoc"))).toBe(
+            "shareableFields"
+        );
+    });
+
+    test("buildMdocDefaultSdClaims preselects requested claims of mdoc credentials only", () => {
+        const mdoc = {
+            ...makeCredential("mso_mdoc"),
+            credentialId: "mdoc-1",
+            sdClaims: ["$['org.iso.18013.5.1']['family_name']"],
+        };
+        const mdocWithoutClaims = { ...makeCredential("mso_mdoc"), credentialId: "mdoc-2", sdClaims: [] };
+        const sdJwt = { ...makeCredential("dc+sd-jwt"), credentialId: "sd-1", sdClaims: ["$.name"] };
+
+        expect(buildMdocDefaultSdClaims([mdoc, mdocWithoutClaims, sdJwt])).toEqual({
+            "mdoc-1": ["$['org.iso.18013.5.1']['family_name']"],
+        });
     });
 });

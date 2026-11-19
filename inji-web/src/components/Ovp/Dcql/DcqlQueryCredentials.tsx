@@ -4,7 +4,7 @@ import { SelectedSdClaimsMap, WalletCredential } from "../../../types/data";
 import SDClaimsSelectionModal from "../../../modals/SDClaimsSelectionModal";
 import CredentialPreviewModal from "../../../modals/CredentialPreviewModal";
 import { DcqlCredentialOptionCard } from "./DcqlCredentialOptionCard";
-import { getCredentialActionVariant, isSdJwtCredential } from "./credentialCardUtils";
+import { getCredentialActionVariant, isSelectivelyDisclosableCredential } from "./credentialCardUtils";
 import { DcqlDesignStyles } from "./dcqlDesignStyles";
 
 interface DcqlQueryCredentialsProps {
@@ -80,7 +80,7 @@ export function DcqlQueryCredentials({
     };
 
     const handleActionClick = (credential: WalletCredential) => {
-        if (isSdJwtCredential(credential)) {
+        if (isSelectivelyDisclosableCredential(credential)) {
             // In DCQL mode show the claims modal as read-only (all claims pre-selected).
             setSelectedSDJWT(credential);
             setShowSDClaimsModal(true);

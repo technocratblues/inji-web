@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { SelectedSdClaimsMap, WalletCredential } from "../../types/data";
 import { MatchingCredentialsStyles } from "./OvpPageStyles";
 import checkCircle from "../../assets/checkCircleTwo.svg";
-import { isSdJwtCredential } from "./Dcql/credentialCardUtils";
+import { isSelectivelyDisclosableCredential } from "./Dcql/credentialCardUtils";
 import SDClaimsSelectionModal from "../../modals/SDClaimsSelectionModal";
 
 interface QueryGroupCredentialListProps {
@@ -56,7 +56,7 @@ export function QueryGroupCredentialList({
             onCredentialSelect(queryId, credential.credentialId, true);
         }
 
-        if (isSdJwtCredential(credential)) {
+        if (isSelectivelyDisclosableCredential(credential)) {
             setSelectedSDJWT(credential);
             setShowSDClaimsModal(true);
         }
